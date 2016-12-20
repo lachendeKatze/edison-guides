@@ -51,6 +51,13 @@ board.on("ready", function() {
   // probablhy don't connect the device unless the board is ready
   device.connect();
   
+  device.on('command', function(command)
+  {
+    console.log("receiving command from Losant: " + command.name);
+    console.log("command payload: " + JSON.stringify(command.payload));
+  });
+  
+  // report temperature every reportInterval milliseconds
   setInterval(function(){
     var analog0Value = analog0Read();
     
@@ -58,6 +65,8 @@ board.on("ready", function() {
     console.log("%d°C", tempValue);
     device.sendState({cageTemp: tempValue});
   },reportInterval);
+  
+  
   
   
   
