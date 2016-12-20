@@ -23,20 +23,47 @@
 
 // Plug the temperature sensor into the Analog port A0 on the provided
 // Seeed Sensor Kit Arduino Shield
-// MUST be in the analog pin slots!
+// MUST be in the analog pin slots!var mraa = require("mraa") ;
+
+var mraa = require("mraa");
+
 var five = require("johnny-five");
 var Edison = require("edison-io");
 var board = new five.Board({
   io: new Edison()
 });
 
+var Device = require('losant-mqtt').Device; // provide IoT connectivity
+var device = new Device({
+    id: '****',
+    key: '****',
+    secret: '****'
+});
+
 board.on("ready", function() {
+  var reportInterval = 3000;
+  
   var temp = new five.Temperature({
     pin: "A0",
     controller: "GROVE"
   });
 
+  // probablhy don't connect the device unless the board is ready
+  device.connect();
+  
+  setInterval(function(){
+    var analog0Value = analog0Read();
+    
+    var tempValue = Math.round(temp.celsius);
+    console.log("%d°C", tempValue);
+    device.sendState({cageTemp: tempValue});
+  },reportInterval);
+  
+  
+  
+  
   this.loop(2000, function() {
     console.log("%d°C", Math.round(temp.celsius));
   });
+  
 });
